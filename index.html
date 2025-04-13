@@ -172,13 +172,11 @@
         }
 
         const totalHeight = banner.height + totalLines * lineHeight + imageHeight + margin * 6;
-
         canvas.width = width;
         canvas.height = totalHeight;
 
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, width, totalHeight);
-
         ctx.drawImage(banner, 0, 0, width, banner.height);
 
         let currentY = banner.height + margin * 2;
@@ -191,7 +189,7 @@
           const fullText = selected[i] ? boldPart + " – " + rest : boldPart;
           const color = selected[i] ? "red" : "black";
           const linesUsed = wrapText(ctx, fullText, margin, currentY, textAreaWidth, lineHeight, color, boldPart);
-          currentY += linesUsed * lineHeight;
+          currentY += linesUsed * lineHeight + 10; // ריווח בין נקודות
         });
 
         if (uploadedImage) {
