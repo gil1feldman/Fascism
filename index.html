@@ -152,94 +152,12 @@
       const list = document.createElement("ul");
 
       points.forEach((point, i) => {
-        const item = document.createElement("li");
-        const splitIndex = point.indexOf("–");
-        const boldPart = `${i + 1}. ` + point.slice(0, splitIndex).trim();
-        const rest = point.slice(splitIndex + 1).trim();
-
-        if (selected[i]) {
-          item.innerHTML = `<span class="highlight">${boldPart}</span> – ${rest}`;
-        } else {
-          item.innerHTML = `<strong>${boldPart}</strong>`;
-        }
-
-        list.appendChild(item);
-      });
-
-      preview.appendChild(list);
-
-      if (uploadedImage) {
-        const imgWrapper = document.createElement("div");
-        imgWrapper.className = "centered";
-        const img = document.createElement("img");
-        img.src = uploadedImage.src;
-        img.className = "preview-img";
-        imgWrapper.appendChild(img);
-        preview.appendChild(imgWrapper);
-      }
-      }
-    }
-
-    function downloadImage() {
-      const canvas = document.getElementById("outputCanvas");
-      const ctx = canvas.getContext("2d");
-
-      const banner = new Image();
-      banner.crossOrigin = "anonymous";
-      banner.src = "https://raw.githubusercontent.com/gil1feldman/Fascism/main/%D7%A1%D7%9E%D7%9E%D7%A0%D7%99_%D7%94%D7%A4%D7%A9%D7%99%D7%96%D7%9D.png";
-
-      const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
-      const lineHeight = 56;
-      const margin = 20;
-      const width = 1000;
-      const textAreaWidth = 960;
-
-      banner.onload = function () {
-        ctx.font = "44px Arial";
-        ctx.direction = 'rtl';
-        ctx.textAlign = 'right';
-
-        let totalLines = 0;
-        points.forEach((point, i) => {
-          totalLines += estimateLineCount(ctx, `${i + 1}. ${point}`, textAreaWidth);
-        });
-
-        let imageHeight = 0;
-        let imgWidth = 0;
-        let imgHeight = 0;
-
-        if (uploadedImage) {
-          imgWidth = 400;
-          const imgRatio = uploadedImage.width / uploadedImage.height;
-          imgHeight = imgWidth / imgRatio;
-          imageHeight = imgHeight;
-        }
-
-        const totalHeight = banner.height + totalLines * lineHeight + imageHeight + margin * 6;
-        canvas.width = width;
-        canvas.height = totalHeight;
-
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, width, totalHeight);
-        ctx.drawImage(banner, 0, 0, width, banner.height);
-
-        let currentY = banner.height + margin * 2;
-        ctx.font = "44px Arial";
-
-        points.forEach((point, i) => {
           const splitIndex = point.indexOf("–");
           const boldPart = `${i + 1}. ` + point.slice(0, splitIndex).trim();
           const rest = point.slice(splitIndex + 1).trim();
 
-          let text = "";
-          let color = "black";
-
-          if (selected[i]) {
-            text = `${boldPart} – ${rest}`;
-            color = "red";
-          } else {
-            text = boldPart;
-          }
+          let text = selected[i] ? `${boldPart} – ${rest}` : boldPart;
+          let color = selected[i] ? "red" : "black";
 
           const linesUsed = wrapText(ctx, text, margin, currentY, textAreaWidth, lineHeight, color);
           currentY += linesUsed * lineHeight + 10;
