@@ -151,9 +151,11 @@
       const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
       const list = document.createElement("ul");
       points.forEach((point, i) => {
-        const item = document.createElement("li");
-        item.innerHTML = selected[i] ? `<span class='highlight'>${i + 1}. ${point}</span>` : `${i + 1}. ${point}`;
-        list.appendChild(item);
+        if (!selected[i]) return;
+        const text = `${i + 1}. ${point}`;
+        const color = "red";
+        const linesUsed = wrapText(ctx, text, width - margin, currentY, textAreaWidth, lineHeight, color);
+        currentY += linesUsed * lineHeight + 10;
       });
       preview.appendChild(list);
 
