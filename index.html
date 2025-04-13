@@ -150,14 +150,22 @@
 
       const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
       const list = document.createElement("ul");
-      points.forEach((point, i) => {
-        if (!selected[i]) return;
 
-        const text = `${i + 1}. ${point}`;
-        const color = "red";
-        const linesUsed = wrapText(ctx, text, margin, currentY, textAreaWidth, lineHeight, color);
-        currentY += linesUsed * lineHeight + 10;
+      points.forEach((point, i) => {
+        const item = document.createElement("li");
+        const splitIndex = point.indexOf("–");
+        const boldPart = `${i + 1}. ` + point.slice(0, splitIndex).trim();
+        const rest = point.slice(splitIndex + 1).trim();
+
+        if (selected[i]) {
+          item.innerHTML = `<span class="highlight">${boldPart}</span> – ${rest}`;
+        } else {
+          item.innerHTML = `<strong>${boldPart}</strong>`;
+        }
+
+        list.appendChild(item);
       });
+
       preview.appendChild(list);
 
       if (uploadedImage) {
@@ -168,6 +176,7 @@
         img.className = "preview-img";
         imgWrapper.appendChild(img);
         preview.appendChild(imgWrapper);
+      }
       }
     }
 
@@ -218,10 +227,21 @@
         ctx.font = "44px Arial";
 
         points.forEach((point, i) => {
-          if (!selected[i]) return;
-          const text = `${i + 1}. ${point}`;
-          const color = "red";
-          const linesUsed = wrapText(ctx, text, width - margin, currentY, textAreaWidth, lineHeight, color);
+          const splitIndex = point.indexOf("–");
+          const boldPart = `${i + 1}. ` + point.slice(0, splitIndex).trim();
+          const rest = point.slice(splitIndex + 1).trim();
+
+          let text = "";
+          let color = "black";
+
+          if (selected[i]) {
+            text = `${boldPart} – ${rest}`;
+            color = "red";
+          } else {
+            text = boldPart;
+          }
+
+          const linesUsed = wrapText(ctx, text, margin, currentY, textAreaWidth, lineHeight, color);
           currentY += linesUsed * lineHeight + 10;
         });
 
