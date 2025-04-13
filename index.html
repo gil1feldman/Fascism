@@ -117,19 +117,166 @@
     const checkboxContainer = document.getElementById("checkboxes");
     points.forEach((point, index) => {
       const label = document.createElement("label");
-
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.id = "point" + index;
       checkbox.value = index;
-
       const textSpan = document.createElement("span");
       textSpan.textContent = (index + 1) + ". " + point;
-
       label.appendChild(checkbox);
       label.appendChild(textSpan);
       checkboxContainer.appendChild(label);
     });
+
+    let uploadedImage = null;
+
+    document.getElementById("imageInput").addEventListener("change", function(e) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        uploadedImage = new Image();
+        uploadedImage.src = e.target.result;
+      };
+      reader.readAsDataURL(this.files[0]);
+    });
+
+    function generatePreview() {
+      const preview = document.getElementById("previewSection");
+      preview.innerHTML = "";
+
+      const bannerImg = document.createElement("img");
+      bannerImg.src = "https://raw.githubusercontent.com/gil1feldman/Fascism/main/%D7%A1%D7%9E%D7%9E%D7%A0%D7%99_%D7%94%D7%A4%D7%A9%D7%99%D7%96%D7%9D.png";
+      bannerImg.className = "banner";
+      preview.appendChild(bannerImg);
+
+      const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
+      const list = document.createElement("ul");
+      points.forEach((point, i) => {
+        const item = document.createElement("li");
+        item.innerHTML = selected[i] ? `<span class='highlight'>${i + 1}. ${point}</span>` : `${i + 1}. ${point}`;
+        list.appendChild(item);
+      });
+      preview.appendChild(list);
+
+      if (uploadedImage) {
+        const imgWrapper = document.createElement("div");
+        imgWrapper.className = "centered";
+        const img = document.createElement("img");
+        img.src = uploadedImage.src;
+        img.className = "preview-img";
+        imgWrapper.appendChild(img);
+        preview.appendChild(imgWrapper);
+      }
+    }
+
+    function downloadImage() {
+      const canvas = document.getElementById("outputCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const banner = new Image();
+      banner.crossOrigin = "anonymous";
+      banner.src = "https://raw.githubusercontent.com/gil1feldman/Fascism/main/%D7%A1%D7%9E%D7%9E%D7%A0%D7%99_%D7%94%D7%A4%D7%A9%D7%99%D7%96%D7%9D.png";
+
+      const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
+      const lineHeight = 56;
+      const margin = 20;
+      const width = 1000;
+      const textAreaWidth = 960;
+
+      banner.onload = function () {
+        ctx.font = "44px Arial";
+        ctx.direction = 'rtl';
+        ctx.textAlign = 'right';
+
+        let totalLines = 0;
+        points.forEach((point, i) => {
+          totalLines += estimateLineCount(ctx, `${i + 1}. ${point}`, textAreaWidth);
+        });
+
+        let imageHeight = 0;
+        let imgWidth = 0;
+        let imgHeight = 0;
+
+        if (uploadedImage) {
+          imgWidth = 400;
+          const imgRatio = uploadedImage.width / uploadedImage.height;
+          imgHeight = imgWidth / imgRatio;
+          imageHeight = imgHeight;
+        }
+
+        const totalHeight = banner.height + totalLines * lineHeight + imageHeight + margin * 6;
+        canvas.width = width;
+        canvas.height = totalHeight;
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, width, totalHeight);
+        ctx.drawImage(banner, 0, 0, width, banner.height);
+
+        let currentY = banner.height + margin * 2;
+        ctx.font = "44px Arial";
+
+        points.forEach((point, i) => {
+          const text = `${i + 1}. ${point}`;
+          const color = selected[i] ? "red" : "black";
+          const linesUsed = wrapText(ctx, text, width - margin, currentY, textAreaWidth, lineHeight, color);
+          currentY += linesUsed * lineHeight + 10;
+        });
+
+        if (uploadedImage) {
+          const imgX = (width - imgWidth) / 2;
+          ctx.drawImage(uploadedImage, imgX, currentY + margin, imgWidth, imgHeight);
+        }
+
+        const link = document.createElement('a');
+        link.download = 'message.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      };
+    }
+  
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight, color) {
+      const words = text.split(' ');
+      let line = '';
+      let linesUsed = 0;
+      ctx.fillStyle = color;
+      const lines = [];
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const testWidth = ctx.measureText(testLine).width;
+        if (testWidth > maxWidth && line !== '') {
+          lines.push(line.trim());
+          line = words[n] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+      lines.push(line.trim());
+
+      for (let i = 0; i < lines.length; i++) {
+        const currentLine = lines[i];
+        ctx.fillText(currentLine, x, y);
+        y += lineHeight;
+        linesUsed++;
+      }
+
+      return linesUsed;
+    }
+
+    function estimateLineCount(ctx, text, maxWidth) {
+      const words = text.split(' ');
+      let line = '';
+      let lines = 0;
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' ';
+        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+          lines++;
+          line = words[i] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+      return lines + 1;
+    }
   </script>
 </body>
 </html>
