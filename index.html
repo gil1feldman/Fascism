@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>סממני הפשיזם על-פי אומברטו אקו</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
       direction: rtl;
       padding: 20px;
-      max-width: 100%;
+      margin: 0;
       box-sizing: border-box;
     }
 
@@ -21,6 +22,7 @@
       margin-top: 30px;
       border-top: 2px solid #ccc;
       padding-top: 20px;
+      overflow-x: auto;
     }
 
     .banner {
@@ -53,25 +55,44 @@
       box-sizing: border-box;
     }
 
-    label, h3 {
-      font-size: 1.1rem;
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
     }
 
-    ul {
-      padding-right: 20px;
+    #checkboxes {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #checkboxes label {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
       font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    #checkboxes input[type="checkbox"] {
+      transform: scale(1.3);
+      margin-left: 10px;
+    }
+
+    label[for="imageInput"] {
+      display: block;
+      margin-top: 20px;
     }
 
     button {
       padding: 0.6em 1.2em;
       font-size: 1rem;
-      margin: 5px 0;
+      margin: 10px 5px 0 0;
       cursor: pointer;
     }
 
-    input[type="checkbox"] {
-      margin-left: 10px;
-      transform: scale(1.2);
+    ul {
+      padding-right: 20px;
+      font-size: 1rem;
     }
 
     @media screen and (max-width: 600px) {
@@ -87,18 +108,14 @@
         font-size: 0.95rem;
       }
 
-      .banner {
-        max-width: 100%;
-        height: auto;
-      }
-
       button {
         width: 100%;
+        margin: 10px 0;
         font-size: 1rem;
       }
 
-      input[type="checkbox"] {
-        transform: scale(1.1);
+      #checkboxes label {
+        font-size: 0.95rem;
       }
     }
   </style>
@@ -109,9 +126,7 @@
   <form id="messageForm">
     <h3>סמנו את הנקודות הרלוונטיות למהלך הנוכחי:</h3>
     <div id="checkboxes"></div>
-    <br>
     <label>הדבק תמונה: <input type="file" id="imageInput" accept="image/*"></label>
-    <br><br>
     <button type="button" onclick="generatePreview()">צור</button>
     <button type="button" onclick="downloadImage()">הורד כתמונה</button>
   </form>
@@ -146,9 +161,10 @@
       const label = document.createElement("label");
       label.htmlFor = checkbox.id;
       label.textContent = (index + 1) + ". " + point;
-      checkboxContainer.appendChild(checkbox);
-      checkboxContainer.appendChild(label);
-      checkboxContainer.appendChild(document.createElement("br"));
+      const wrapper = document.createElement("label");
+      wrapper.appendChild(checkbox);
+      wrapper.appendChild(document.createTextNode(" " + label.textContent));
+      checkboxContainer.appendChild(wrapper);
     });
 
     let uploadedImage = null;
