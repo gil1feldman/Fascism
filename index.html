@@ -115,8 +115,8 @@
         const boldPart = point.slice(0, splitIndex).trim();
         const rest = point.slice(splitIndex + 1).trim();
         item.innerHTML = selected[i]
-          ? <span class='highlight'>${i + 1}. ${boldPart}</span> – ${rest}
-          : <strong>${i + 1}. ${boldPart}</strong>;
+          ? `<span class='highlight'>${i + 1}. ${boldPart}</span> – ${rest}`
+          : `<strong>${i + 1}. ${boldPart}</strong>`;
         list.appendChild(item);
       });
       preview.appendChild(list);
@@ -260,5 +260,3 @@
   </script>
 </body>
 </html>
-
-
