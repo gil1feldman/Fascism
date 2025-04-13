@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>סממני הפשיזם על-פי אומברטו אקו</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      padding: 20px;
+    }
+    .highlight {
+      color: red;
+      font-weight: bold;
+    }
+    .preview {
+      margin-top: 30px;
+      border-top: 2px solid #ccc;
+      padding-top: 20px;
+    }
+    .banner {
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .centered {
+      text-align: center;
+    }
+    img.preview-img {
+      max-width: 400px;
+      margin: 20px auto;
+      display: block;
+    }
+    #canvasContainer {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <img class="banner" src="https://raw.githubusercontent.com/gil1feldman/RODANUT/main/%D7%A8%D7%95%D7%93%D7%A0%D7%95%D7%AA_%D7%91%D7%90%D7%A0%D7%A8_%D7%A6%D7%A8.png" alt="באנר">
+
+  <form id="messageForm">
+    <h3>סמנו את הנקודות הרלוונטיות למהלך הנוכחי:</h3>
+    <div id="checkboxes"></div>
+    <br>
+    <label>הדבק תמונה: <input type="file" id="imageInput" accept="image/*"></label>
+    <br><br>
+    <button type="button" onclick="generatePreview()">צור</button>
+    <button type="button" onclick="downloadImage()">הורד כתמונה</button>
+  </form>
+
+  <div class="preview" id="previewSection"></div>
+  <div id="canvasContainer"><canvas id="outputCanvas"></canvas></div>
+
+  <script>
+    const points = [
+      "פולחן המסורת – הגות מסוימת שתעמוד כבסיס תאורטי שמצדיק את פעולות המשטר.",
+      "דחיית המודרניזם – חזרה או השענות על רעיונות לא מדעיים ולא רציונליים (דת למשל).",
+      "פולחן הפעולה לשם פעולה – ביצוע פעולות או קבלת החלטות שאין להם הגיון, חשיבה או הסבר מניח את הדעת.",
+      "אי-הסכמה וביקורת נחשבים כבגידה – המדע מעודד ביקורת, פשיזם דוחה אותה ורואה בה בגידה. כל הטלת ספק או ביקורת מתוייגת כבגידה.",
+      "פחד מהבדל – כל תנועה פשיסטית מבוססת על גזענות והוקעת האחרות. הבסיס הוא 'אנחנו' ו'הם', ההם נבדלים ומהווים איום.",
+      "ערעור על תסכול חברתי – כל תנועה פשיסטית מכוונת לשכבה מסוימת באוכלוסיה ומגדירה אותה כקהל יעד תוך שהיא מצביעה על השכבות האחרות כמי שמאיימות עליה.",
+      "האובססיה לעלילה – עלילה פשיסטית מבוססת על סיפור של קנוניה שמניבה תחושת מצור ורדיפה.",
+      "האויב חזק וחלש כאחד – על ידי שינוי מתמיד של מיקוד רטורי, האויבים בו זמנית חזקים מדי וחלשים מדי.",
+      "שאיפה לשלום נחשבת כתמיכה באויב – בפאשיזם אין מאבק על החיים אלא החיים הם עצם המאבק.",
+      "בוז לחלשים ולחולשה – פולחן הכוח והכוחניות כאלמנט שגובר על אידיאולוגיה או טובת הנתינים. האדרת השליט מתוך בוז לחלשים ולחולשה.",
+      "כולם גיבורים – בפאשיזם גבורה היא הנורמה. פולחן הגבורה קשור בקפדנות גם לפולחן המוות ותפיסתו כחיוני.",
+      "גבריות ומיליטנטיות – פאשיזם מקדש תכונות גבריות ובז לתכונות נשיות. המתנגדים למשטר מוצגים כנשיים, כהומואים, כחלשים.",
+      "פופוליזם סלקטיבי – שימוש מניפולטיבי בתקשורת תוך הצגת התגובה הרגשית של קבוצה נבחרת של אזרחים כאילו הם 'העם'.",
+      "השטחה והפשטה של הדיון – כל ספרי הלימוד הנאציים או הפשיסטיים עשו שימוש באוצר מילים דל ובתחביר אלמנטרי, כדי להגביל חשיבה ביקורתית."
+    ];
+
+    const checkboxContainer = document.getElementById("checkboxes");
+    points.forEach((point, index) => {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "point" + index;
+      checkbox.value = index;
+      const label = document.createElement("label");
+      label.htmlFor = checkbox.id;
+      label.textContent = (index + 1) + ". " + point;
+      checkboxContainer.appendChild(checkbox);
+      checkboxContainer.appendChild(label);
+      checkboxContainer.appendChild(document.createElement("br"));
+    });
+
+    let uploadedImage = null;
+
+    document.getElementById("imageInput").addEventListener("change", function(e) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        uploadedImage = new Image();
+        uploadedImage.src = e.target.result;
+      };
+      reader.readAsDataURL(this.files[0]);
+    });
+
+    function generatePreview() {
+      const preview = document.getElementById("previewSection");
+      preview.innerHTML = "";
+
+      const bannerImg = document.createElement("img");
+      bannerImg.src = "https://raw.githubusercontent.com/gil1feldman/RODANUT/main/%D7%A8%D7%95%D7%93%D7%A0%D7%95%D7%AA_%D7%91%D7%90%D7%A0%D7%A8_%D7%A6%D7%A8.png";
+      bannerImg.className = "banner";
+      preview.appendChild(bannerImg);
+
+      const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
+      const list = document.createElement("ul");
+      points.forEach((point, i) => {
+        const item = document.createElement("li");
+        const splitIndex = point.indexOf("–");
+        if (splitIndex !== -1) {
+          const boldPart = point.slice(0, splitIndex).trim();
+          const rest = point.slice(splitIndex + 1).trim();
+          item.innerHTML = selected[i]
+            ? `<span class='highlight'>${boldPart}</span> – ${rest}`
+            : `<strong>${boldPart}</strong> – ${rest}`;
+        } else {
+          item.textContent = point;
+        }
+        list.appendChild(item);
+      });
+      preview.appendChild(list);
+
+      if (uploadedImage) {
+        const imgWrapper = document.createElement("div");
+        imgWrapper.className = "centered";
+        const img = document.createElement("img");
+        img.src = uploadedImage.src;
+        img.className = "preview-img";
+        imgWrapper.appendChild(img);
+        preview.appendChild(imgWrapper);
+      }
+    }
+
+    function downloadImage() {
+      const canvas = document.getElementById("outputCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const banner = new Image();
+      banner.crossOrigin = "anonymous";
+      banner.src = "https://raw.githubusercontent.com/gil1feldman/RODANUT/main/%D7%A8%D7%95%D7%93%D7%A0%D7%95%D7%AA_%D7%91%D7%90%D7%A0%D7%A8_%D7%A6%D7%A8.png";
+
+      const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
+      const lineHeight = 56;
+      const margin = 20;
+
+      banner.onload = function () {
+        const width = 800;
+        ctx.font = "44px Arial";
+        ctx.direction = 'rtl';
+        ctx.textAlign = 'right';
+
+        let totalLines = 0;
+        points.forEach((point, i) => {
+          totalLines += estimateLineCount(ctx, point, 760);
+        });
+
+        let imageHeight = 0;
+        let imgWidth = 0;
+        let imgHeight = 0;
+
+        if (uploadedImage) {
+          imgWidth = 400;
+          const imgRatio = uploadedImage.width / uploadedImage.height;
+          imgHeight = imgWidth / imgRatio;
+          imageHeight = imgHeight;
+        }
+
+        const footerHeight = 50;
+        const totalHeight = banner.height + totalLines * lineHeight + imageHeight + margin * 6 + footerHeight;
+
+        canvas.width = width;
+        canvas.height = totalHeight;
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, width, totalHeight);
+
+        ctx.drawImage(banner, 0, 0, width, banner.height);
+
+        let currentY = banner.height + margin * 2;
+        ctx.font = "44px Arial";
+
+        points.forEach((point, i) => {
+          const splitIndex = point.indexOf("–");
+          const boldPart = point.slice(0, splitIndex).trim();
+          const rest = point.slice(splitIndex + 1).trim();
+          const fullText = boldPart + " – " + rest;
+          const color = selected[i] ? "red" : "black";
+          const linesUsed = wrapText(ctx, fullText, margin, currentY, 760, lineHeight, color, boldPart);
+          currentY += linesUsed * lineHeight;
+        });
+
+        if (uploadedImage) {
+          const imgX = (width - imgWidth) / 2;
+          ctx.drawImage(uploadedImage, imgX, currentY + margin, imgWidth, imgHeight);
+          currentY += imgHeight + 10;
+        }
+
+        ctx.font = "26px Arial";
+        ctx.fillStyle = "black";
+        ctx.fillText('מבוסס על הספר "רודנות בחסות החוק" של קים ליין שפלי', width - margin, currentY + margin * 2);
+
+        const link = document.createElement('a');
+        link.download = 'message.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      };
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight, color, boldPart = "") {
+      const words = text.split(' ');
+      let line = '';
+      let linesUsed = 0;
+      ctx.fillStyle = color;
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const testWidth = ctx.measureText(testLine).width;
+        if (testWidth > maxWidth && line !== '') {
+          ctx.fillText(line, x + maxWidth, y);
+          y += lineHeight;
+          linesUsed++;
+          line = words[n] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+
+      if (boldPart && line.includes(boldPart)) {
+        const boldWidth = ctx.measureText(boldPart + " ").width;
+        ctx.font = "bold 44px Arial";
+        ctx.fillText(boldPart, x + maxWidth - ctx.measureText(line).width, y);
+        ctx.font = "44px Arial";
+        ctx.fillText(line.replace(boldPart, '').trim(), x + maxWidth - ctx.measureText(line).width + boldWidth, y);
+      } else {
+        ctx.fillText(line, x + maxWidth, y);
+      }
+
+      linesUsed++;
+      return linesUsed;
+    }
+
+    function estimateLineCount(ctx, text, maxWidth) {
+      const words = text.split(' ');
+      let line = '';
+      let lines = 0;
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' ';
+        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+          lines++;
+          line = words[i] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+      return lines + 1;
+    }
+  </script>
+</body>
+</html>
