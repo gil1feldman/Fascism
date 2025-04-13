@@ -115,17 +115,23 @@
     ];
 
     const checkboxContainer = document.getElementById("checkboxes");
-    points.forEach((point, index) => {
-      const label = document.createElement("label");
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.id = "point" + index;
-      checkbox.value = index;
-      const textSpan = document.createElement("span");
-      textSpan.textContent = (index + 1) + ". " + point;
-      label.appendChild(checkbox);
-      label.appendChild(textSpan);
-      checkboxContainer.appendChild(label);
+points.forEach((point, index) => {
+  const splitIndex = point.indexOf("–");
+  const shortText = point.slice(0, splitIndex).trim();
+
+  const label = document.createElement("label");
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.id = "point" + index;
+  checkbox.value = index;
+
+  const textSpan = document.createElement("span");
+  textSpan.textContent = (index + 1) + ". " + shortText;
+
+  label.appendChild(checkbox);
+  label.appendChild(textSpan);
+  checkboxContainer.appendChild(label);
+});
     });
 
     let uploadedImage = null;
