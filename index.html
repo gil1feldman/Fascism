@@ -152,9 +152,10 @@
       const list = document.createElement("ul");
       points.forEach((point, i) => {
         if (!selected[i]) return;
+
         const text = `${i + 1}. ${point}`;
         const color = "red";
-        const linesUsed = wrapText(ctx, text, width - margin, currentY, textAreaWidth, lineHeight, color);
+        const linesUsed = wrapText(ctx, text, margin, currentY, textAreaWidth, lineHeight, color);
         currentY += linesUsed * lineHeight + 10;
       });
       preview.appendChild(list);
