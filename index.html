@@ -20,7 +20,7 @@
     }
     .banner {
       width: 100%;
-      max-width: 800px;
+      max-width: 1000px;
       margin-bottom: 20px;
       display: block;
       margin-left: auto;
@@ -112,15 +112,11 @@
       points.forEach((point, i) => {
         const item = document.createElement("li");
         const splitIndex = point.indexOf("–");
-        if (splitIndex !== -1) {
-          const boldPart = point.slice(0, splitIndex).trim();
-          const rest = point.slice(splitIndex + 1).trim();
-          item.innerHTML = selected[i]
-            ? `<span class='highlight'>${boldPart}</span> – ${rest}`
-            : `<strong>${boldPart}</strong> – ${rest}`;
-        } else {
-          item.textContent = point;
-        }
+        const boldPart = point.slice(0, splitIndex).trim();
+        const rest = point.slice(splitIndex + 1).trim();
+        item.innerHTML = selected[i]
+          ? `<span class='highlight'>${i + 1}. ${boldPart}</span> – ${rest}`
+          : `<strong>${i + 1}. ${boldPart}</strong> – ${rest}`;
         list.appendChild(item);
       });
       preview.appendChild(list);
@@ -147,16 +143,21 @@
       const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
       const lineHeight = 56;
       const margin = 20;
+      const width = 1000;
+      const textAreaWidth = 960;
 
       banner.onload = function () {
-        const width = 800;
         ctx.font = "44px Arial";
         ctx.direction = 'rtl';
         ctx.textAlign = 'right';
 
         let totalLines = 0;
         points.forEach((point, i) => {
-          totalLines += estimateLineCount(ctx, point, 760);
+          const splitIndex = point.indexOf("–");
+          const boldPart = (i + 1) + ". " + point.slice(0, splitIndex).trim();
+          const rest = point.slice(splitIndex + 1).trim();
+          const fullText = boldPart + " – " + rest;
+          totalLines += estimateLineCount(ctx, fullText, textAreaWidth);
         });
 
         let imageHeight = 0;
@@ -186,11 +187,11 @@
 
         points.forEach((point, i) => {
           const splitIndex = point.indexOf("–");
-          const boldPart = point.slice(0, splitIndex).trim();
+          const boldPart = (i + 1) + ". " + point.slice(0, splitIndex).trim();
           const rest = point.slice(splitIndex + 1).trim();
           const fullText = boldPart + " – " + rest;
           const color = selected[i] ? "red" : "black";
-          const linesUsed = wrapText(ctx, fullText, margin, currentY, 760, lineHeight, color, boldPart);
+          const linesUsed = wrapText(ctx, fullText, margin, currentY, textAreaWidth, lineHeight, color, boldPart);
           currentY += linesUsed * lineHeight;
         });
 
