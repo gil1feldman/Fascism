@@ -188,8 +188,8 @@
           const rest = point.slice(splitIndex + 1).trim();
           const fullText = selected[i] ? boldPart + " – " + rest : boldPart;
           const color = selected[i] ? "red" : "black";
-          const linesUsed = wrapText(ctx, fullText, margin, currentY, textAreaWidth, lineHeight, color, boldPart);
-          currentY += linesUsed * lineHeight + 10; // ריווח בין נקודות
+          const linesUsed = wrapText(ctx, fullText, width - margin, currentY, textAreaWidth, lineHeight, color, boldPart);
+          currentY += linesUsed * lineHeight + 10;
         });
 
         if (uploadedImage) {
@@ -209,31 +209,36 @@
       let line = '';
       let linesUsed = 0;
       ctx.fillStyle = color;
+      const lines = [];
 
       for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
         const testWidth = ctx.measureText(testLine).width;
         if (testWidth > maxWidth && line !== '') {
-          ctx.fillText(line, x + maxWidth, y);
-          y += lineHeight;
-          linesUsed++;
+          lines.push(line.trim());
           line = words[n] + ' ';
         } else {
           line = testLine;
         }
       }
+      lines.push(line.trim());
 
-      if (boldPart && line.includes(boldPart)) {
-        const boldWidth = ctx.measureText(boldPart + " ").width;
-        ctx.font = "bold 44px Arial";
-        ctx.fillText(boldPart, x + maxWidth - ctx.measureText(line).width, y);
-        ctx.font = "44px Arial";
-        ctx.fillText(line.replace(boldPart, '').trim(), x + maxWidth - ctx.measureText(line).width + boldWidth, y);
-      } else {
-        ctx.fillText(line, x + maxWidth, y);
+      for (let i = 0; i < lines.length; i++) {
+        const currentLine = lines[i];
+        if (boldPart && currentLine.includes(boldPart)) {
+          const boldWidth = ctx.measureText(boldPart + " ").width;
+          ctx.font = "bold 44px Arial";
+          ctx.fillText(boldPart, x, y);
+          ctx.font = "44px Arial";
+          const rest = currentLine.replace(boldPart, '').trim();
+          ctx.fillText(rest, x - boldWidth, y);
+        } else {
+          ctx.fillText(currentLine, x, y);
+        }
+        y += lineHeight;
+        linesUsed++;
       }
 
-      linesUsed++;
       return linesUsed;
     }
 
