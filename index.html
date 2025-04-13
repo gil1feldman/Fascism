@@ -2,15 +2,12 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>סממני הפשיזם על-פי אומברטו אקו</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       direction: rtl;
       padding: 20px;
-      box-sizing: border-box;
-      max-width: 100%;
     }
     .highlight {
       color: red;
@@ -20,10 +17,6 @@
       margin-top: 30px;
       border-top: 2px solid #ccc;
       padding-top: 20px;
-      width: 100%;
-      max-width: 1000px;
-      margin-left: auto;
-      margin-right: auto;
     }
     .banner {
       width: 100%;
@@ -37,46 +30,12 @@
       text-align: center;
     }
     img.preview-img {
-      max-width: 100%;
-      height: auto;
-      display: block;
+      max-width: 400px;
       margin: 20px auto;
+      display: block;
     }
     #canvasContainer {
       display: none;
-    }
-    form {
-      width: 100%;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    label {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 12px;
-      font-size: 16px;
-      flex-wrap: nowrap;
-      line-height: 1.4;
-    }
-    label input[type="checkbox"] {
-      margin-top: 4px;
-    }
-    button {
-      margin: 5px 0;
-      width: 100%;
-      max-width: 300px;
-    }
-    @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
-      h3 {
-        font-size: 18px;
-      }
-      button {
-        font-size: 16px;
-      }
     }
   </style>
 </head>
@@ -115,23 +74,17 @@
     ];
 
     const checkboxContainer = document.getElementById("checkboxes");
-points.forEach((point, index) => {
-  const splitIndex = point.indexOf("–");
-  const shortText = point.slice(0, splitIndex).trim();
-
-  const label = document.createElement("label");
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.id = "point" + index;
-  checkbox.value = index;
-
-  const textSpan = document.createElement("span");
-  textSpan.textContent = (index + 1) + ". " + shortText;
-
-  label.appendChild(checkbox);
-  label.appendChild(textSpan);
-  checkboxContainer.appendChild(label);
-});
+    points.forEach((point, index) => {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "point" + index;
+      checkbox.value = index;
+      const label = document.createElement("label");
+      label.htmlFor = checkbox.id;
+      label.textContent = (index + 1) + ". " + point;
+      checkboxContainer.appendChild(checkbox);
+      checkboxContainer.appendChild(label);
+      checkboxContainer.appendChild(document.createElement("br"));
     });
 
     let uploadedImage = null;
@@ -156,16 +109,86 @@ points.forEach((point, index) => {
 
       const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
       const list = document.createElement("ul");
-
       points.forEach((point, i) => {
+        const item = document.createElement("li");
+        const splitIndex = point.indexOf("–");
+        const boldPart = point.slice(0, splitIndex).trim();
+        const rest = point.slice(splitIndex + 1).trim();
+        item.innerHTML = selected[i]
+          ? <span class='highlight'>${i + 1}. ${boldPart}</span> – ${rest}
+          : <strong>${i + 1}. ${boldPart}</strong>;
+        list.appendChild(item);
+      });
+      preview.appendChild(list);
+
+      if (uploadedImage) {
+        const imgWrapper = document.createElement("div");
+        imgWrapper.className = "centered";
+        const img = document.createElement("img");
+        img.src = uploadedImage.src;
+        img.className = "preview-img";
+        imgWrapper.appendChild(img);
+        preview.appendChild(imgWrapper);
+      }
+    }
+
+    function downloadImage() {
+      const canvas = document.getElementById("outputCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const banner = new Image();
+      banner.crossOrigin = "anonymous";
+      banner.src = "https://raw.githubusercontent.com/gil1feldman/Fascism/main/%D7%A1%D7%9E%D7%9E%D7%A0%D7%99_%D7%94%D7%A4%D7%A9%D7%99%D7%96%D7%9D.png";
+
+      const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
+      const lineHeight = 56;
+      const margin = 20;
+      const width = 1000;
+      const textAreaWidth = 960;
+
+      banner.onload = function () {
+        ctx.font = "44px Arial";
+        ctx.direction = 'rtl';
+        ctx.textAlign = 'right';
+
+        let totalLines = 0;
+        points.forEach((point, i) => {
           const splitIndex = point.indexOf("–");
-          const boldPart = `${i + 1}. ` + point.slice(0, splitIndex).trim();
+          const boldPart = (i + 1) + ". " + point.slice(0, splitIndex).trim();
           const rest = point.slice(splitIndex + 1).trim();
+          const fullText = selected[i] ? boldPart + " – " + rest : boldPart;
+          totalLines += estimateLineCount(ctx, fullText, textAreaWidth);
+        });
 
-          let text = selected[i] ? `${boldPart} – ${rest}` : boldPart;
-          let color = selected[i] ? "red" : "black";
+        let imageHeight = 0;
+        let imgWidth = 0;
+        let imgHeight = 0;
 
-          const linesUsed = wrapText(ctx, text, margin, currentY, textAreaWidth, lineHeight, color);
+        if (uploadedImage) {
+          imgWidth = 400;
+          const imgRatio = uploadedImage.width / uploadedImage.height;
+          imgHeight = imgWidth / imgRatio;
+          imageHeight = imgHeight;
+        }
+
+        const totalHeight = banner.height + totalLines * lineHeight + imageHeight + margin * 6;
+        canvas.width = width;
+        canvas.height = totalHeight;
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, width, totalHeight);
+        ctx.drawImage(banner, 0, 0, width, banner.height);
+
+        let currentY = banner.height + margin * 2;
+        ctx.font = "44px Arial";
+
+        points.forEach((point, i) => {
+          const splitIndex = point.indexOf("–");
+          const boldPart = (i + 1) + ". " + point.slice(0, splitIndex).trim();
+          const rest = point.slice(splitIndex + 1).trim();
+          const fullText = selected[i] ? boldPart + " – " + rest : boldPart;
+          const color = selected[i] ? "red" : "black";
+          const linesUsed = wrapText(ctx, fullText, width - margin, currentY, textAreaWidth, lineHeight, color, boldPart);
           currentY += linesUsed * lineHeight + 10;
         });
 
@@ -180,8 +203,8 @@ points.forEach((point, index) => {
         link.click();
       };
     }
-  
-    function wrapText(ctx, text, x, y, maxWidth, lineHeight, color) {
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight, color, boldPart = "") {
       const words = text.split(' ');
       let line = '';
       let linesUsed = 0;
@@ -202,7 +225,16 @@ points.forEach((point, index) => {
 
       for (let i = 0; i < lines.length; i++) {
         const currentLine = lines[i];
-        ctx.fillText(currentLine, x, y);
+        if (boldPart && currentLine.includes(boldPart)) {
+          const boldWidth = ctx.measureText(boldPart + " ").width;
+          ctx.font = "bold 44px Arial";
+          ctx.fillText(boldPart, x, y);
+          ctx.font = "44px Arial";
+          const rest = currentLine.replace(boldPart, '').trim();
+          ctx.fillText(rest, x - boldWidth, y);
+        } else {
+          ctx.fillText(currentLine, x, y);
+        }
         y += lineHeight;
         linesUsed++;
       }
@@ -228,3 +260,5 @@ points.forEach((point, index) => {
   </script>
 </body>
 </html>
+
+
