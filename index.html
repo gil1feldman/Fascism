@@ -116,7 +116,7 @@
         const rest = point.slice(splitIndex + 1).trim();
         item.innerHTML = selected[i]
           ? `<span class='highlight'>${i + 1}. ${boldPart}</span> – ${rest}`
-          : `<strong>${i + 1}. ${boldPart}</strong> – ${rest}`;
+          : `<strong>${i + 1}. ${boldPart}</strong>`;
         list.appendChild(item);
       });
       preview.appendChild(list);
@@ -156,7 +156,7 @@
           const splitIndex = point.indexOf("–");
           const boldPart = (i + 1) + ". " + point.slice(0, splitIndex).trim();
           const rest = point.slice(splitIndex + 1).trim();
-          const fullText = boldPart + " – " + rest;
+          const fullText = selected[i] ? boldPart + " – " + rest : boldPart;
           totalLines += estimateLineCount(ctx, fullText, textAreaWidth);
         });
 
@@ -171,8 +171,7 @@
           imageHeight = imgHeight;
         }
 
-        const footerHeight = 50;
-        const totalHeight = banner.height + totalLines * lineHeight + imageHeight + margin * 6 + footerHeight;
+        const totalHeight = banner.height + totalLines * lineHeight + imageHeight + margin * 6;
 
         canvas.width = width;
         canvas.height = totalHeight;
@@ -189,7 +188,7 @@
           const splitIndex = point.indexOf("–");
           const boldPart = (i + 1) + ". " + point.slice(0, splitIndex).trim();
           const rest = point.slice(splitIndex + 1).trim();
-          const fullText = boldPart + " – " + rest;
+          const fullText = selected[i] ? boldPart + " – " + rest : boldPart;
           const color = selected[i] ? "red" : "black";
           const linesUsed = wrapText(ctx, fullText, margin, currentY, textAreaWidth, lineHeight, color, boldPart);
           currentY += linesUsed * lineHeight;
@@ -198,12 +197,7 @@
         if (uploadedImage) {
           const imgX = (width - imgWidth) / 2;
           ctx.drawImage(uploadedImage, imgX, currentY + margin, imgWidth, imgHeight);
-          currentY += imgHeight + 10;
         }
-
-        ctx.font = "26px Arial";
-        ctx.fillStyle = "black";
-        ctx.fillText('מבוסס על הספר "רודנות בחסות החוק" של קים ליין שפלי', width - margin, currentY + margin * 2);
 
         const link = document.createElement('a');
         link.download = 'message.png';
