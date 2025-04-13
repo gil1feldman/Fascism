@@ -217,8 +217,9 @@
         ctx.font = "44px Arial";
 
         points.forEach((point, i) => {
+          if (!selected[i]) return;
           const text = `${i + 1}. ${point}`;
-          const color = selected[i] ? "red" : "black";
+          const color = "red";
           const linesUsed = wrapText(ctx, text, width - margin, currentY, textAreaWidth, lineHeight, color);
           currentY += linesUsed * lineHeight + 10;
         });
