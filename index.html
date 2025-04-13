@@ -8,16 +8,21 @@
       font-family: Arial, sans-serif;
       direction: rtl;
       padding: 20px;
+      max-width: 100%;
+      box-sizing: border-box;
     }
+
     .highlight {
       color: red;
       font-weight: bold;
     }
+
     .preview {
       margin-top: 30px;
       border-top: 2px solid #ccc;
       padding-top: 20px;
     }
+
     .banner {
       width: 100%;
       max-width: 1000px;
@@ -25,17 +30,76 @@
       display: block;
       margin-left: auto;
       margin-right: auto;
+      height: auto;
     }
+
     .centered {
       text-align: center;
     }
+
     img.preview-img {
-      max-width: 400px;
+      max-width: 90%;
+      height: auto;
       margin: 20px auto;
       display: block;
     }
+
     #canvasContainer {
       display: none;
+    }
+
+    form {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    label, h3 {
+      font-size: 1.1rem;
+    }
+
+    ul {
+      padding-right: 20px;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 0.6em 1.2em;
+      font-size: 1rem;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      margin-left: 10px;
+      transform: scale(1.2);
+    }
+
+    @media screen and (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
+      h3 {
+        font-size: 1rem;
+      }
+
+      label, ul {
+        font-size: 0.95rem;
+      }
+
+      .banner {
+        max-width: 100%;
+        height: auto;
+      }
+
+      button {
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      input[type="checkbox"] {
+        transform: scale(1.1);
+      }
     }
   </style>
 </head>
