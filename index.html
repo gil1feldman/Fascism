@@ -284,7 +284,7 @@
       };
     }
 
-   function wrapText(ctx, text, x, y, maxWidth, lineHeight, color, boldPart = "") {
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight, color, boldPart = "") {
   const words = text.split(' ');
   let line = '';
   let linesUsed = 0;
@@ -306,16 +306,16 @@
   for (let i = 0; i < lines.length; i++) {
     const currentLine = lines[i];
 
-    // הוספת רווח אחרי מקף, רק אם הסעיף נבחר (כלומר, אם boldPart כולל מקף)
+    // בדיקה רק למי שמתחיל עם bold + מקף ורווח
     if (boldPart && currentLine.startsWith(boldPart + " –")) {
-      const fullBold = boldPart + " – ";
-      const boldWidth = ctx.measureText(fullBold + " ").width;
+      const fullBold = boldPart + " – "; // כאן נוסיף רווח נוסף
+      const boldWidth = ctx.measureText(fullBold).width;
 
       ctx.font = "bold 44px Arial";
       ctx.fillText(fullBold, x, y);
 
       ctx.font = "44px Arial";
-      const rest = currentLine.substring(fullBold.length + 1); // +1 כדי להשאיר רווח
+      const rest = currentLine.substring(fullBold.length);
       ctx.fillText(rest, x - boldWidth, y);
     } else {
       ctx.font = "44px Arial";
@@ -325,6 +325,9 @@
     y += lineHeight;
     linesUsed++;
   }
+
+  return linesUsed;
+}
 
   return linesUsed;
 }
