@@ -305,16 +305,20 @@
 
       for (let i = 0; i < lines.length; i++) {
         const currentLine = lines[i];
-        if (boldPart && currentLine.includes(boldPart)) {
-          const boldWidth = ctx.measureText(boldPart + " ").width;
-          ctx.font = "bold 44px Arial";
-          ctx.fillText(boldPart, x, y);
-          ctx.font = "44px Arial";
-          const rest = currentLine.replace(boldPart, '').trim();
-          ctx.fillText(rest, x - boldWidth, y);
-        } else {
-          ctx.fillText(currentLine, x, y);
-        }
+        if (boldPart && currentLine.startsWith(boldPart)) {
+  const boldText = boldPart + " –";
+  const boldWidth = ctx.measureText(boldText + " ").width;
+
+  ctx.font = "bold 44px Arial";
+  ctx.fillText(boldText, x, y);
+
+  ctx.font = "44px Arial";
+  const rest = currentLine.slice(boldText.length).trim();
+  ctx.fillText(rest, x - boldWidth, y);
+} else {
+  ctx.fillText(currentLine, x, y);
+}
+
         y += lineHeight;
         linesUsed++;
       }
