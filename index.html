@@ -9,8 +9,6 @@
       font-family: Arial, sans-serif;
       direction: rtl;
       padding: 20px;
-      margin: 0;
-      box-sizing: border-box;
     }
 
     .highlight {
@@ -18,105 +16,46 @@
       font-weight: bold;
     }
 
-    .preview {
-      margin-top: 30px;
-      border-top: 2px solid #ccc;
-      padding-top: 20px;
-      overflow-x: auto;
-    }
-
     .banner {
       width: 100%;
       max-width: 1000px;
-      margin-bottom: 20px;
       display: block;
-      margin-left: auto;
-      margin-right: auto;
-      height: auto;
-    }
-
-    .centered {
-      text-align: center;
-    }
-
-    img.preview-img {
-      max-width: 90%;
-      height: auto;
-      margin: 20px auto;
-      display: block;
-    }
-
-    #canvasContainer {
-      display: none;
-    }
-
-    form {
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-
-    h3 {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-    }
-
-    #checkboxes {
-      display: flex;
-      flex-direction: column;
+      margin: 0 auto 20px;
     }
 
     #checkboxes label {
       display: flex;
       align-items: center;
       margin: 5px 0;
-      font-size: 1rem;
-      line-height: 1.5;
     }
 
     #checkboxes input[type="checkbox"] {
-      transform: scale(1.3);
       margin-left: 10px;
-    }
-
-    label[for="imageInput"] {
-      display: block;
-      margin-top: 20px;
+      transform: scale(1.3);
     }
 
     button {
-      padding: 0.6em 1.2em;
+      padding: 10px;
+      margin-top: 10px;
       font-size: 1rem;
-      margin: 10px 5px 0 0;
       cursor: pointer;
     }
 
-    ul {
-      padding-right: 20px;
-      font-size: 1rem;
+    #previewSection {
+      margin-top: 30px;
+      border-top: 2px solid #ccc;
+      padding-top: 20px;
     }
 
-    @media screen and (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
+    img.preview-img {
+      max-width: 90%;
+      height: auto;
+      display: block;
+      margin: 20px auto;
+    }
 
-      h3 {
-        font-size: 1rem;
-      }
-
-      label, ul {
-        font-size: 0.95rem;
-      }
-
-      button {
-        width: 100%;
-        margin: 10px 0;
-        font-size: 1rem;
-      }
-
-      #checkboxes label {
-        font-size: 0.95rem;
-      }
+    #canvasContainer {
+      display: none;
     }
   </style>
 </head>
@@ -124,14 +63,15 @@
   <img class="banner" src="https://raw.githubusercontent.com/gil1feldman/Fascism/main/%D7%A1%D7%9E%D7%9E%D7%A0%D7%99_%D7%94%D7%A4%D7%A9%D7%99%D7%96%D7%9D.png" alt="באנר">
 
   <form id="messageForm">
-    <h3>סמנו את הנקודות הרלוונטיות למהלך הנוכחי:</h3>
+    <h3>סמנו את הנקודות הרלוונטיות:</h3>
     <div id="checkboxes"></div>
-    <label>הדבק תמונה: <input type="file" id="imageInput" accept="image/*"></label>
-    <button type="button" onclick="generatePreview()">צור</button>
+    <label>העלה תמונה: <input type="file" id="imageInput" accept="image/*"></label>
+    <br>
+    <button type="button" onclick="generatePreview()">צור תצוגה</button>
     <button type="button" onclick="downloadImage()">הורד כתמונה</button>
   </form>
 
-  <div class="preview" id="previewSection"></div>
+  <div id="previewSection"></div>
   <div id="canvasContainer"><canvas id="outputCanvas"></canvas></div>
 
   <script>
@@ -140,27 +80,27 @@
       "דחיית המודרניזם – חזרה או השענות על רעיונות לא מדעיים ולא רציונליים (דת למשל).",
       "פולחן הפעולה לשם פעולה – ביצוע פעולות או קבלת החלטות שאין להם הגיון, חשיבה או הסבר מניח את הדעת.",
       "אי-הסכמה וביקורת נחשבים כבגידה – פשיזם דוחה ביקורת ורואה בה בגידה. כל הטלת ספק או ביקורת מתוייגת כבגידה.",
-      "פחד מהבדל – כל תנועה פשיסטית מבוססת על גזענות והוקעת האחרות. הבסיס הוא 'אנחנו' ו'הם', ההם נבדלים ומהווים איום.",
-      "ערעור על תסכול חברתי – כל תנועה פשיסטית מכוונת לשכבה מסוימת באוכלוסיה ומגדירה אותה כקהל יעד תוך שהיא מצביעה על השכבות האחרות כמי שמאיימות עליה.",
-      "האובססיה לעלילה – עלילה פשיסטית מבוססת על סיפור של קנוניה שמניבה תחושת מצור ורדיפה.",
-      "האויב חזק וחלש כאחד – על ידי שינוי מתמיד של מיקוד רטורי, האויבים בו זמנית חזקים מדי וחלשים מדי.",
-      "שאיפה לשלום נחשבת כתמיכה באויב – בפאשיזם אין מאבק על החיים אלא החיים הם עצם המאבק.",
-      "בוז לחלשים ולחולשה – פולחן הכוח והכוחניות כאלמנט שגובר על אידיאולוגיה או טובת הנתינים. האדרת השליט מתוך בוז לחלשים ולחולשה.",
-      "כולם גיבורים – בפאשיזם גבורה היא הנורמה. פולחן הגבורה קשור בקפדנות גם לפולחן המוות ותפיסתו כחיוני.",
-      "גבריות ומיליטנטיות – פאשיזם מקדש תכונות גבריות ובז לתכונות נשיות. המתנגדים למשטר מוצגים כנשיים, כהומואים, כחלשים.",
-      "פופוליזם סלקטיבי – שימוש מניפולטיבי בתקשורת תוך הצגת התגובה הרגשית של קבוצה נבחרת של אזרחים כאילו הם 'העם'.",
-      "השטחה והפשטה של הדיון – כל ספרי הלימוד הנאציים או הפשיסטיים עשו שימוש באוצר מילים דל ובתחביר אלמנטרי, כדי להגביל חשיבה ביקורתית."
+      "פחד מהבדל – כל תנועה פשיסטית מבוססת על גזענות והוקעת האחרות.",
+      "ערעור על תסכול חברתי – התנועה מצביעה על השכבות האחרות כמי שמאיימות על השכבה הנבחרת.",
+      "האובססיה לעלילה – סיפור של קנוניה שמניבה תחושת מצור ורדיפה.",
+      "האויב חזק וחלש כאחד – בו זמנית חזקים מדי וחלשים מדי.",
+      "שאיפה לשלום נחשבת כתמיכה באויב – החיים הם עצם המאבק.",
+      "בוז לחלשים ולחולשה – פולחן הכוח, האדרת השליט, ובוז לחולשה.",
+      "כולם גיבורים – פולחן הגבורה, המוות והנורמה ההרואית.",
+      "גבריות ומיליטנטיות – תכונות גבריות מקודשות, בז לתכונות נשיות.",
+      "פופוליזם סלקטיבי – 'העם' הם הקהל שנבחר, שדרכו נמדדת הלגיטימציה.",
+      "השטחה והפשטה של הדיון – הגבלת חשיבה ביקורתית באוצר מילים מצומצם."
     ];
 
     const checkboxContainer = document.getElementById("checkboxes");
-    points.forEach((point, index) => {
+    points.forEach((point, i) => {
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      checkbox.id = "point" + index;
-      checkbox.value = index;
+      checkbox.id = "point" + i;
+      checkbox.value = i;
       const label = document.createElement("label");
       label.htmlFor = checkbox.id;
-      label.textContent = (index + 1) + ". " + point;
+      label.textContent = (i + 1) + ". " + point;
       const wrapper = document.createElement("label");
       wrapper.appendChild(checkbox);
       wrapper.appendChild(document.createTextNode(" " + label.textContent));
@@ -168,7 +108,6 @@
     });
 
     let uploadedImage = null;
-
     document.getElementById("imageInput").addEventListener("change", function(e) {
       const reader = new FileReader();
       reader.onload = function (e) {
@@ -190,32 +129,28 @@
       const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
       const list = document.createElement("ul");
       points.forEach((point, i) => {
-        const item = document.createElement("li");
+        const li = document.createElement("li");
         const splitIndex = point.indexOf("–");
-        const boldPart = point.slice(0, splitIndex).trim();
+        const bold = point.slice(0, splitIndex).trim();
         const rest = point.slice(splitIndex + 1).trim();
-        item.innerHTML = selected[i]
-          ? `<span class='highlight'>${i + 1}. ${boldPart}</span> – ${rest}`
-          : `<strong>${i + 1}. ${boldPart}</strong>`;
-        list.appendChild(item);
+        li.innerHTML = selected[i]
+          ? `<span class="highlight">${i + 1}. ${bold}</span> – ${rest}`
+          : `<strong>${i + 1}. ${bold}</strong>`;
+        list.appendChild(li);
       });
       preview.appendChild(list);
 
       if (uploadedImage) {
-        const imgWrapper = document.createElement("div");
-        imgWrapper.className = "centered";
         const img = document.createElement("img");
         img.src = uploadedImage.src;
         img.className = "preview-img";
-        imgWrapper.appendChild(img);
-        preview.appendChild(imgWrapper);
+        preview.appendChild(img);
       }
     }
 
     function downloadImage() {
       const canvas = document.getElementById("outputCanvas");
       const ctx = canvas.getContext("2d");
-
       const banner = new Image();
       banner.crossOrigin = "anonymous";
       banner.src = "https://raw.githubusercontent.com/gil1feldman/Fascism/main/%D7%A1%D7%9E%D7%9E%D7%A0%D7%99_%D7%94%D7%A4%D7%A9%D7%99%D7%96%D7%9D.png";
@@ -228,26 +163,23 @@
 
       banner.onload = function () {
         ctx.font = "44px Arial";
-        ctx.direction = 'rtl';
-        ctx.textAlign = 'right';
+        ctx.direction = "rtl";
+        ctx.textAlign = "right";
 
         let totalLines = 0;
         points.forEach((point, i) => {
           const splitIndex = point.indexOf("–");
-          const boldPart = (i + 1) + ". " + point.slice(0, splitIndex).trim();
+          const bold = (i + 1) + ". " + point.slice(0, splitIndex).trim();
           const rest = point.slice(splitIndex + 1).trim();
-          const fullText = selected[i] ? boldPart + " – " + rest : boldPart;
+          const fullText = selected[i] ? `${bold} – ${rest}` : bold;
           totalLines += estimateLineCount(ctx, fullText, textAreaWidth);
         });
 
-        let imageHeight = 0;
-        let imgWidth = 0;
-        let imgHeight = 0;
-
+        let imageHeight = 0, imgWidth = 0, imgHeight = 0;
         if (uploadedImage) {
           imgWidth = 400;
-          const imgRatio = uploadedImage.width / uploadedImage.height;
-          imgHeight = imgWidth / imgRatio;
+          const ratio = uploadedImage.width / uploadedImage.height;
+          imgHeight = imgWidth / ratio;
           imageHeight = imgHeight;
         }
 
@@ -260,15 +192,12 @@
         ctx.drawImage(banner, 0, 0, width, banner.height);
 
         let currentY = banner.height + margin * 2;
-        ctx.font = "44px Arial";
-
         points.forEach((point, i) => {
           const splitIndex = point.indexOf("–");
-          const boldPart = (i + 1) + ". " + point.slice(0, splitIndex).trim();
+          const bold = (i + 1) + ". " + point.slice(0, splitIndex).trim();
           const rest = point.slice(splitIndex + 1).trim();
-          const fullText = selected[i] ? boldPart + " – " + rest : boldPart;
           const color = selected[i] ? "red" : "black";
-          const linesUsed = wrapText(ctx, fullText, width - margin, currentY, textAreaWidth, lineHeight, color, boldPart);
+          const linesUsed = wrapText(ctx, bold, rest, selected[i], width - margin, currentY, textAreaWidth, lineHeight, color);
           currentY += linesUsed * lineHeight + 10;
         });
 
@@ -284,64 +213,54 @@
       };
     }
 
-  function wrapText(ctx, text, x, y, maxWidth, lineHeight, color, boldPart = "") {
-  const words = text.split(' ');
-  let line = '';
-  let linesUsed = 0;
-  ctx.fillStyle = color;
-  const lines = [];
+    function wrapText(ctx, boldPart, rest, isSelected, x, y, maxWidth, lineHeight, color) {
+      ctx.fillStyle = color;
+      ctx.textAlign = 'right';
+      const fullText = isSelected ? `${boldPart} –  ${rest}` : boldPart;
+      const words = fullText.split(' ');
+      let line = '', lines = [], linesUsed = 0;
 
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + ' ';
-    const testWidth = ctx.measureText(testLine).width;
-    if (testWidth > maxWidth && line !== '') {
+      for (let word of words) {
+        const testLine = line + word + ' ';
+        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+          lines.push(line.trimEnd());
+          line = word + ' ';
+        } else {
+          line = testLine;
+        }
+      }
       lines.push(line.trimEnd());
-      line = words[n] + ' ';
-    } else {
-      line = testLine;
+
+      for (let i = 0; i < lines.length; i++) {
+        const currentLine = lines[i];
+        if (isSelected && i === 0) {
+          const fullBold = `${boldPart} –  `;
+          const boldWidth = ctx.measureText(fullBold).width;
+
+          ctx.font = "bold 44px Arial";
+          ctx.fillText(fullBold, x, y);
+
+          ctx.font = "44px Arial";
+          const restOfLine = currentLine.substring(fullBold.length);
+          ctx.fillText(restOfLine, x - boldWidth, y);
+        } else {
+          ctx.font = isSelected ? "44px Arial" : "bold 44px Arial";
+          ctx.fillText(currentLine, x, y);
+        }
+        y += lineHeight;
+        linesUsed++;
+      }
+      return linesUsed;
     }
-  }
-  lines.push(line.trimEnd());
-
-  for (let i = 0; i < lines.length; i++) {
-    const currentLine = lines[i];
-
-    // בדיקה רק למי שמתחיל עם bold + מקף ורווח
-    if (boldPart && currentLine.startsWith(boldPart + " –")) {
-      const fullBold = boldPart + " – "; // כאן נוסיף רווח נוסף
-      const boldWidth = ctx.measureText(fullBold).width;
-
-      ctx.font = "bold 44px Arial";
-      ctx.fillText(fullBold, x, y);
-
-      ctx.font = "44px Arial";
-      const rest = currentLine.substring(fullBold.length);
-      ctx.fillText(rest, x - boldWidth, y);
-    } else {
-      ctx.font = "44px Arial";
-      ctx.fillText(currentLine, x, y);
-    }
-
-    y += lineHeight;
-    linesUsed++;
-  }
-
-  return linesUsed;
-}
-
-  return linesUsed;
-}
-
 
     function estimateLineCount(ctx, text, maxWidth) {
       const words = text.split(' ');
-      let line = '';
-      let lines = 0;
-      for (let i = 0; i < words.length; i++) {
-        const testLine = line + words[i] + ' ';
+      let line = '', lines = 0;
+      for (let word of words) {
+        const testLine = line + word + ' ';
         if (ctx.measureText(testLine).width > maxWidth && line !== '') {
           lines++;
-          line = words[i] + ' ';
+          line = word + ' ';
         } else {
           line = testLine;
         }
