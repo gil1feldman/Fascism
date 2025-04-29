@@ -313,9 +313,10 @@
   ctx.fillText(boldText, x, y);
 
   ctx.font = "44px Arial";
-  const rest = currentLine.slice(boldText.length).trim();
+  const rest = currentLine.substring(boldText.length); // בלי trim
   ctx.fillText(rest, x - boldWidth, y);
-} else {
+}
+ else {
   ctx.fillText(currentLine, x, y);
 }
 
