@@ -284,48 +284,51 @@
       };
     }
 
-    function wrapText(ctx, text, x, y, maxWidth, lineHeight, color, boldPart = "") {
-      const words = text.split(' ');
-      let line = '';
-      let linesUsed = 0;
-      ctx.fillStyle = color;
-      const lines = [];
+   function wrapText(ctx, text, x, y, maxWidth, lineHeight, color, boldPart = "") {
+  const words = text.split(' ');
+  let line = '';
+  let linesUsed = 0;
+  ctx.fillStyle = color;
+  const lines = [];
 
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const testWidth = ctx.measureText(testLine).width;
-        if (testWidth > maxWidth && line !== '') {
-          lines.push(line.trim());
-          line = words[n] + ' ';
-        } else {
-          line = testLine;
-        }
-      }
-      lines.push(line.trim());
-
-      for (let i = 0; i < lines.length; i++) {
-        const currentLine = lines[i];
-        if (boldPart && currentLine.startsWith(boldPart)) {
-  const boldText = boldPart + " –";
-  const boldWidth = ctx.measureText(boldText + " ").width;
-
-  ctx.font = "bold 44px Arial";
-  ctx.fillText(boldText, x, y);
-
-  ctx.font = "44px Arial";
-  const rest = currentLine.substring(boldText.length); // בלי trim
-  ctx.fillText(rest, x - boldWidth, y);
-}
- else {
-  ctx.fillText(currentLine, x, y);
-}
-
-        y += lineHeight;
-        linesUsed++;
-      }
-
-      return linesUsed;
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const testWidth = ctx.measureText(testLine).width;
+    if (testWidth > maxWidth && line !== '') {
+      lines.push(line.trimEnd());
+      line = words[n] + ' ';
+    } else {
+      line = testLine;
     }
+  }
+  lines.push(line.trimEnd());
+
+  for (let i = 0; i < lines.length; i++) {
+    const currentLine = lines[i];
+
+    // הוספת רווח אחרי מקף, רק אם הסעיף נבחר (כלומר, אם boldPart כולל מקף)
+    if (boldPart && currentLine.startsWith(boldPart + " –")) {
+      const fullBold = boldPart + " –";
+      const boldWidth = ctx.measureText(fullBold + " ").width;
+
+      ctx.font = "bold 44px Arial";
+      ctx.fillText(fullBold, x, y);
+
+      ctx.font = "44px Arial";
+      const rest = currentLine.substring(fullBold.length + 1); // +1 כדי להשאיר רווח
+      ctx.fillText(rest, x - boldWidth, y);
+    } else {
+      ctx.font = "44px Arial";
+      ctx.fillText(currentLine, x, y);
+    }
+
+    y += lineHeight;
+    linesUsed++;
+  }
+
+  return linesUsed;
+}
+
 
     function estimateLineCount(ctx, text, maxWidth) {
       const words = text.split(' ');
