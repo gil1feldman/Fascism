@@ -308,7 +308,7 @@
 
     // הוספת רווח אחרי מקף, רק אם הסעיף נבחר (כלומר, אם boldPart כולל מקף)
     if (boldPart && currentLine.startsWith(boldPart + " –")) {
-      const fullBold = boldPart + " –";
+      const fullBold = boldPart + " – ";
       const boldWidth = ctx.measureText(fullBold + " ").width;
 
       ctx.font = "bold 44px Arial";
