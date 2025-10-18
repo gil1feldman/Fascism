@@ -1,272 +1,194 @@
-<!DOCTYPE html>
-<html lang="he">
+<!doctype html>
+<html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>סממני הפשיזם על-פי אומברטו אקו</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>הצעות חוק (חי) ‐ כנסת</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      direction: rtl;
-      padding: 20px;
-    }
-
-    .highlight {
-      color: red;
-      font-weight: bold;
-    }
-
-    .banner {
-      width: 100%;
-      max-width: 1000px;
-      display: block;
-      margin: 0 auto 20px;
-    }
-
-    #checkboxes label {
-      display: flex;
-      align-items: center;
-      margin: 5px 0;
-    }
-
-    #checkboxes input[type="checkbox"] {
-      margin-left: 10px;
-      transform: scale(1.3);
-    }
-
-    button {
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    #previewSection {
-      margin-top: 30px;
-      border-top: 2px solid #ccc;
-      padding-top: 20px;
-    }
-
-    img.preview-img {
-      max-width: 90%;
-      height: auto;
-      display: block;
-      margin: 20px auto;
-    }
-
-    #canvasContainer {
-      display: none;
-    }
+    html { scroll-behavior: smooth; }
+    .ltr { direction: ltr; unicode-bidi: bidi-override; }
   </style>
 </head>
-<body>
-  <img class="banner" src="https://raw.githubusercontent.com/gil1feldman/Fascism/main/%D7%A1%D7%9E%D7%9E%D7%A0%D7%99_%D7%94%D7%A4%D7%A9%D7%99%D7%96%D7%9D.png" alt="באנר">
+<body class="bg-gray-50 text-gray-900">
+  <header class="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+      <div class="flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 10l7-7 7 7M5 10v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>
+        </svg>
+        <h1 class="text-xl md:text-2xl font-semibold">הצעות חוק ‐ מאגר חקיקה לאומי (חי)</h1>
+      </div>
+      <div class="flex flex-col md:flex-row gap-2 md:items-center">
+        <input id="q" type="search" placeholder="חיפוש לפי שם הצעה…" class="w-full md:w-80 rounded-xl border px-3 py-2 focus:outline-none focus:ring" />
+        <select id="statusFilter" class="rounded-xl border px-3 py-2 bg-white">
+          <option value="">כל הסטטוסים</option>
+          <option value="בחקיקה">בחקיקה</option>
+          <option value="התקבל">התקבל</option>
+          <option value="נעצר">נעצר</option>
+        </select>
+        <button id="refreshBtn" class="rounded-xl px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">רענון</button>
+      </div>
+    </div>
+  </header>
 
-  <form id="messageForm">
-    <h3>סמנו את הנקודות הרלוונטיות:</h3>
-    <div id="checkboxes"></div>
-    <label>העלה תמונה: <input type="file" id="imageInput" accept="image/*"></label>
-    <br>
-    <button type="button" onclick="generatePreview()">צור תצוגה</button>
-    <button type="button" onclick="downloadImage()">הורד כתמונה</button>
-  </form>
+  <section id="notice" class="max-w-6xl mx-auto px-4 pt-4 hidden">
+    <div class="rounded-xl border bg-yellow-50 text-yellow-900 px-4 py-3 text-sm" id="noticeText"></div>
+  </section>
 
-  <div id="previewSection"></div>
-  <div id="canvasContainer"><canvas id="outputCanvas"></canvas></div>
+  <main class="max-w-6xl mx-auto px-4 py-4">
+    <div id="meta" class="text-sm text-gray-600 mb-3">טוען מספר כנסת נוכחית…</div>
+    <div id="list" class="grid gap-3"></div>
+    <div id="pager" class="flex items-center justify-center py-6">
+      <button id="loadMore" class="hidden rounded-xl border px-4 py-2 bg-white hover:bg-gray-50">טען עוד</button>
+    </div>
+  </main>
+
+  <template id="billCardTmpl">
+    <article class="rounded-2xl border bg-white shadow-sm p-4 flex flex-col gap-2">
+      <div class="flex flex-col gap-1">
+        <a class="bill-link text-lg font-semibold text-blue-700 hover:underline" target="_blank" rel="noopener"></a>
+        <div class="text-sm text-gray-600">
+          <span class="badge mr-2 inline-block rounded-full border px-3 py-0.5 text-gray-700"></span>
+          <span class="status mr-2 inline-block rounded-full border px-3 py-0.5"></span>
+          <span class="date text-gray-500"></span>
+        </div>
+      </div>
+      <details class="group">
+        <summary class="cursor-pointer select-none text-sm text-gray-700 hover:text-gray-900">פרטים נוספים (יוזמים/ועדות/שלבים)</summary>
+        <div class="mt-2 text-sm text-gray-800 space-y-1">
+          <div class="initiators"></div>
+          <div class="committee"></div>
+          <div class="stages"></div>
+        </div>
+      </details>
+    </article>
+  </template>
 
   <script>
-    const points = [
-      "פולחן המסורת – הגות מסוימת שתעמוד כבסיס תאורטי שמצדיק את פעולות המשטר.",
-      "דחיית המודרניזם – חזרה או השענות על רעיונות לא מדעיים ולא רציונליים (דת למשל).",
-      "פולחן הפעולה לשם פעולה – ביצוע פעולות או קבלת החלטות שאין להם הגיון, חשיבה או הסבר מניח את הדעת.",
-      "אי-הסכמה וביקורת נחשבים כבגידה – פשיזם דוחה ביקורת ורואה בה בגידה. כל הטלת ספק או ביקורת מתוייגת כבגידה.",
-      "פחד מהבדל – כל תנועה פשיסטית מבוססת על גזענות והוקעת האחרות.",
-      "ערעור על תסכול חברתי – התנועה מצביעה על השכבות האחרות כמי שמאיימות על השכבה הנבחרת.",
-      "האובססיה לעלילה – סיפור של קנוניה שמניבה תחושת מצור ורדיפה.",
-      "האויב חזק וחלש כאחד – בו זמנית חזקים מדי וחלשים מדי.",
-      "שאיפה לשלום נחשבת כתמיכה באויב – החיים הם עצם המאבק.",
-      "בוז לחלשים ולחולשה – פולחן הכוח, האדרת השליט, ובוז לחולשה.",
-      "כולם גיבורים – פולחן הגבורה, המוות והנורמה ההרואית.",
-      "גבריות ומיליטנטיות – תכונות גבריות מקודשות, בז לתכונות נשיות.",
-      "פופוליזם סלקטיבי – 'העם' הם הקהל שנבחר, שדרכו נמדדת הלגיטימציה.",
-      "השטחה והפשטה של הדיון – הגבלת חשיבה ביקורתית באוצר מילים מצומצם."
-    ];
+  const ODATA_BASE = "https://knesset.gov.il/OdataV4/ParliamentInfo";
+  let PROXY = "https://knesset-odata-proxy.gil1feldman.workers.dev";
+  const api = (pathQuery) => (PROXY ? PROXY : ODATA_BASE) + pathQuery;
 
-    const checkboxContainer = document.getElementById("checkboxes");
-    points.forEach((point, i) => {
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.id = "point" + i;
-      checkbox.value = i;
-      const label = document.createElement("label");
-      label.htmlFor = checkbox.id;
-      label.textContent = (i + 1) + ". " + point;
-      const wrapper = document.createElement("label");
-      wrapper.appendChild(checkbox);
-      wrapper.appendChild(document.createTextNode(" " + label.textContent));
-      checkboxContainer.appendChild(wrapper);
-    });
+  const NATIONAL_LEGISLATION_BILL_URL = (id) => `https://main.knesset.gov.il/Activity/Legislation/Laws/Pages/LawBill.aspx?lawitemid=${id}&t=lawsuggestionssearch`;
+  const state = { knessetNum: null, skip: 0, pageSize: 50, busy: false, done: false, raw: [], filtered: [] };
 
-    let uploadedImage = null;
-    document.getElementById("imageInput").addEventListener("change", function(e) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        uploadedImage = new Image();
-        uploadedImage.src = e.target.result;
-      };
-      reader.readAsDataURL(this.files[0]);
-    });
+  const els = {
+    meta: document.getElementById('meta'), list: document.getElementById('list'), loadMore: document.getElementById('loadMore'),
+    q: document.getElementById('q'), status: document.getElementById('statusFilter'), refreshBtn: document.getElementById('refreshBtn'),
+    notice: document.getElementById('notice'), noticeText: document.getElementById('noticeText'), tmpl: document.getElementById('billCardTmpl') };
 
-    function generatePreview() {
-      const preview = document.getElementById("previewSection");
-      preview.innerHTML = "";
+  function showNotice(msg, tone = 'warn') {
+    els.notice.classList.remove('hidden');
+    els.noticeText.textContent = msg;
+    els.noticeText.className = 'rounded-xl border px-4 py-3 text-sm ' + (tone === 'error' ? 'bg-red-50 text-red-900' : 'bg-yellow-50 text-yellow-900');
+  }
+  function hideNotice(){ els.notice.classList.add('hidden'); }
+  const fmtDate = (iso) => { if (!iso) return ''; try { return new Date(iso).toLocaleString('he-IL', { dateStyle: 'medium', timeStyle: 'short' }); } catch { return iso; } };
 
-      const bannerImg = document.createElement("img");
-      bannerImg.src = "https://raw.githubusercontent.com/gil1feldman/Fascism/main/%D7%A1%D7%9E%D7%9E%D7%A0%D7%99_%D7%94%D7%A4%D7%A9%D7%99%D7%96%D7%9D.png";
-      bannerImg.className = "banner";
-      preview.appendChild(bannerImg);
+  async function fetchCurrentKnesset(){
+    const url = api('/KNS_KnessetDates?$filter=IsCurrent%20eq%20true');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('שגיאה בשליפת מספר הכנסת');
+    const data = await res.json();
+    const num = data?.value?.[0]?.KnessetNum;
+    if (!num) throw new Error('לא נמצאה כנסת פעילה');
+    state.knessetNum = num;
+    els.meta.textContent = `כנסת ${num} · עדכונים אחרונים · עמוד בגודל ${state.pageSize}`;
+  }
 
-      const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
-      const list = document.createElement("ul");
-      points.forEach((point, i) => {
-        const li = document.createElement("li");
-        const splitIndex = point.indexOf("–");
-        const bold = point.slice(0, splitIndex).trim();
-        const rest = point.slice(splitIndex + 1).trim();
-        li.innerHTML = selected[i]
-          ? `<span class="highlight">${i + 1}. ${bold}</span> – ${rest}`
-          : `<strong>${i + 1}. ${bold}</strong>`;
-        list.appendChild(li);
-      });
-      preview.appendChild(list);
-
-      if (uploadedImage) {
-        const img = document.createElement("img");
-        img.src = uploadedImage.src;
-        img.className = "preview-img";
-        preview.appendChild(img);
-      }
+  async function fetchBillsPage(){
+    if (state.busy || state.done) return;
+    state.busy = true;
+    els.loadMore.textContent = 'טוען…'; els.loadMore.disabled = true;
+    const select = ['$select=Id,Name,SubTypeDesc,StatusDesc,KnessetNum,LastUpdatedDate'];
+    const filter = `KnessetNum%20eq%20${state.knessetNum}`;
+    const order = '$orderby=LastUpdatedDate%20desc';
+    const top = `$top=${state.pageSize}`;
+    const skip = `$skip=${state.skip}`;
+    const url = api(`/KNS_Bill?${select}&$filter=${filter}&${order}&${top}&${skip}`);
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('שגיאה בשליפת הצעות');
+      const data = await res.json();
+      const rows = data?.value || [];
+      state.raw.push(...rows);
+      state.skip += rows.length;
+      if (rows.length < state.pageSize) state.done = true;
+      applyFilters();
+      els.loadMore.classList.toggle('hidden', state.done);
+    } catch (err){
+      console.error(err);
+      showNotice('ייתכן שיש חסימת CORS. אבל הפרוקסי שלך כנראה פועל — בדוק קונסול.', 'error');
+    } finally {
+      state.busy = false;
+      els.loadMore.textContent = 'טען עוד'; els.loadMore.disabled = false;
     }
+  }
 
-    function downloadImage() {
-      const canvas = document.getElementById("outputCanvas");
-      const ctx = canvas.getContext("2d");
-      const banner = new Image();
-      banner.crossOrigin = "anonymous";
-      banner.src = "https://raw.githubusercontent.com/gil1feldman/Fascism/main/%D7%A1%D7%9E%D7%9E%D7%A0%D7%99_%D7%94%D7%A4%D7%A9%D7%99%D7%96%D7%9D.png";
+  function applyFilters(){
+    const q = (els.q.value || '').trim(); const status = els.status.value || '';
+    let rows = [...state.raw];
+    if (q) { const rx = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); rows = rows.filter(r => rx.test(r.Name || '')); }
+    if (status) { rows = rows.filter(r => (r.StatusDesc || '').includes(status)); }
+    state.filtered = rows;
+    renderList(rows);
+  }
 
-      const selected = Array.from(document.querySelectorAll("input[type='checkbox']")).map(cb => cb.checked);
-      const lineHeight = 56;
-      const margin = 20;
-      const width = 1000;
-      const textAreaWidth = 960;
+  function renderList(rows){
+    els.list.innerHTML = ''; const frag = document.createDocumentFragment();
+    for (const r of rows){
+      const node = els.tmpl.content.cloneNode(true);
+      const link = node.querySelector('.bill-link');
+      const badge = node.querySelector('.badge');
+      const status = node.querySelector('.status');
+      const date = node.querySelector('.date');
+      link.textContent = r.Name || '(ללא שם)';
+      link.href = NATIONAL_LEGISLATION_BILL_URL(r.Id);
+      badge.textContent = r.SubTypeDesc || '';
+      status.textContent = r.StatusDesc || '';
+      status.classList.add(/התקבל|אושר/.test(r.StatusDesc||'') ? 'bg-green-50' : /נעצר|בוטל/.test(r.StatusDesc||'') ? 'bg-red-50' : 'bg-gray-50');
+      date.textContent = `עודכן: ${fmtDate(r.LastUpdatedDate)}`;
 
-      banner.onload = function () {
-        ctx.font = "44px Arial";
-        ctx.direction = "rtl";
-        ctx.textAlign = "right";
-
-        let totalLines = 0;
-        points.forEach((point, i) => {
-          const splitIndex = point.indexOf("–");
-          const bold = (i + 1) + ". " + point.slice(0, splitIndex).trim();
-          const rest = point.slice(splitIndex + 1).trim();
-          const fullText = selected[i] ? `${bold} – ${rest}` : bold;
-          totalLines += estimateLineCount(ctx, fullText, textAreaWidth);
-        });
-
-        let imageHeight = 0, imgWidth = 0, imgHeight = 0;
-        if (uploadedImage) {
-          imgWidth = 400;
-          const ratio = uploadedImage.width / uploadedImage.height;
-          imgHeight = imgWidth / ratio;
-          imageHeight = imgHeight;
-        }
-
-        const totalHeight = banner.height + totalLines * lineHeight + imageHeight + margin * 6;
-        canvas.width = width;
-        canvas.height = totalHeight;
-
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, width, totalHeight);
-        ctx.drawImage(banner, 0, 0, width, banner.height);
-
-        let currentY = banner.height + margin * 2;
-        points.forEach((point, i) => {
-          const splitIndex = point.indexOf("–");
-          const bold = (i + 1) + ". " + point.slice(0, splitIndex).trim();
-          const rest = point.slice(splitIndex + 1).trim();
-          const color = selected[i] ? "red" : "black";
-          const linesUsed = wrapText(ctx, bold, rest, selected[i], width - margin, currentY, textAreaWidth, lineHeight, color);
-          currentY += linesUsed * lineHeight + 10;
-        });
-
-        if (uploadedImage) {
-          const imgX = (width - imgWidth) / 2;
-          ctx.drawImage(uploadedImage, imgX, currentY + margin, imgWidth, imgHeight);
-        }
-
-        const link = document.createElement('a');
-        link.download = 'message.png';
-        link.href = canvas.toDataURL();
-        link.click();
-      };
+      const details = node.querySelector('details');
+      const initiators = node.querySelector('.initiators');
+      const committee = node.querySelector('.committee');
+      const stages = node.querySelector('.stages');
+      details.addEventListener('toggle', async () => {
+        if (!details.open || details.dataset.loaded) return;
+        try {
+          const urlInit = api(`/KNS_BillInitiator?$select=BillID,PersonName&$filter=BillID%20eq%20${r.Id}`);
+          const resI = await fetch(urlInit);
+          if (resI.ok){ const vi = await resI.json(); const names = (vi?.value||[]).map(x=>x.PersonName).filter(Boolean); if (names.length) initiators.textContent = 'יוזמים: ' + names.join(', '); }
+        } catch(e) {}
+        try {
+          const urlStages = api(`/KNS_BillStage?$select=BillID,StageDesc,CommitteeName,StageDate&$filter=BillID%20eq%20${r.Id}&$orderby=StageDate%20desc`);
+          const resS = await fetch(urlStages);
+          if (resS.ok){ const vs = await resS.json(); const arr = vs?.value || [];
+            if (arr.length){
+              const latestCommittee = arr.find(x=>x.CommitteeName);
+              if (latestCommittee) committee.textContent = 'ועדה מטפלת: ' + latestCommittee.CommitteeName;
+              const lines = arr.slice(0,8).map(x=>`• ${x.StageDesc} (${fmtDate(x.StageDate)})`);
+              stages.innerHTML = '<div class="font-medium mb-1">ציר זמן אחרון:</div><ul class="list-disc mr-5 text-gray-700">' + lines.map(li=>`<li>${li}</li>`).join('') + '</ul>';
+            }
+          }
+        } catch(e) {}
+        details.dataset.loaded = '1';
+      }, { once: false });
+      frag.appendChild(node);
     }
+    els.list.appendChild(frag);
+  }
 
-    function wrapText(ctx, boldPart, rest, isSelected, x, y, maxWidth, lineHeight, color) {
-      ctx.fillStyle = color;
-      ctx.textAlign = 'right';
-      const fullText = isSelected ? `${boldPart} –  ${rest}` : boldPart;
-      const words = fullText.split(' ');
-      let line = '', lines = [], linesUsed = 0;
+  els.loadMore.addEventListener('click', fetchBillsPage);
+  els.refreshBtn.addEventListener('click', async () => { state.skip = 0; state.done = false; state.raw = []; state.filtered = []; els.list.innerHTML = ''; await fetchBillsPage(); });
+  els.q.addEventListener('input', applyFilters);
+  els.status.addEventListener('change', applyFilters);
 
-      for (let word of words) {
-        const testLine = line + word + ' ';
-        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
-          lines.push(line.trimEnd());
-          line = word + ' ';
-        } else {
-          line = testLine;
-        }
-      }
-      lines.push(line.trimEnd());
-
-      for (let i = 0; i < lines.length; i++) {
-        const currentLine = lines[i];
-        if (isSelected && i === 0) {
-          const fullBold = `${boldPart} –  `;
-          const boldWidth = ctx.measureText(fullBold).width;
-
-          ctx.font = "bold 44px Arial";
-          ctx.fillText(fullBold, x, y);
-
-          ctx.font = "44px Arial";
-          const restOfLine = currentLine.substring(fullBold.length);
-          ctx.fillText(restOfLine, x - boldWidth, y);
-        } else {
-          ctx.font = isSelected ? "44px Arial" : "bold 44px Arial";
-          ctx.fillText(currentLine, x, y);
-        }
-        y += lineHeight;
-        linesUsed++;
-      }
-      return linesUsed;
-    }
-
-    function estimateLineCount(ctx, text, maxWidth) {
-      const words = text.split(' ');
-      let line = '', lines = 0;
-      for (let word of words) {
-        const testLine = line + word + ' ';
-        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
-          lines++;
-          line = word + ' ';
-        } else {
-          line = testLine;
-        }
-      }
-      return lines + 1;
-    }
+  (async function init(){
+    try { await fetchCurrentKnesset(); hideNotice(); els.loadMore.classList.remove('hidden'); await fetchBillsPage(); }
+    catch (err){ console.error(err); showNotice('אירעה שגיאה. בדוק את ה־Worker או הגדרות CORS.', 'error'); els.meta.textContent = 'לא ניתן לטעון כעת.'; }
+  })();
   </script>
 </body>
 </html>
